@@ -10,6 +10,8 @@ import {
   CircularProgress,
   Alert,
   Chip,
+  TextField,
+  Button
 } from "@mui/material";
 import { useParams, Link } from "react-router-dom";
 import fetchModel from "../../lib/fetchModelData";
@@ -21,6 +23,29 @@ function UserPhotos() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [comment, setComment] = useState({});
+
+  const handleCommentChange = (photoId, value) => {
+    setComment({
+      ...comment,
+      [photoId]: value
+    })
+  }
+
+  const handleSubmitComment = (photoId) => {
+    const commentText = comment[photoId];
+    if(!commentText || commentText.trim() === "") {
+      alert("Comment cannot be empty");
+      return;
+    }
+
+    alert(`Submitting comment for photo ${photoId}: ${commentText}`);
+
+    setComment({
+      ...comment,
+      [photoId]: ""
+    });
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -207,6 +232,30 @@ function UserPhotos() {
                 No comments yet. Be the first to comment!
               </Alert>
             )}
+            <Divider sx={{ my: 2 }} />
+
+            <Typography variant="subtitle1" fontWeight="bold">
+              Add a comment
+            </Typography>
+
+            <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Write a comment..."
+                value={comment[photo._id] || ""}
+                onChange={(e) =>
+                  handleCommentChange(photo._id, e.target.value)
+                }
+              />
+
+              <Button
+                variant="contained"
+                onClick={() => handleSubmitComment(photo._id)}
+              >
+                Post
+              </Button>
+            </Box>
           </CardContent>
         </Card>
       ))}
