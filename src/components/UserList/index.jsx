@@ -7,7 +7,8 @@ import {
   ListItemText,
   Divider,
   CircularProgress,
-  Alert
+  Alert,
+  Button
 } from '@mui/material';
 import fetchModel from '../../lib/fetchModelData';
 
@@ -61,7 +62,8 @@ function UserList() {
               to={`/users/${item._id}`}
               button
             >
-              <ListItemText primary={`${item.first_name} ${item.last_name}`} />
+              <ListItemText primary={`${item.first_name} ${item.last_name}`} /> 
+              {/* <Button type="submit">Delete</Button> */}
             </ListItem>
             <Divider />
           </React.Fragment>

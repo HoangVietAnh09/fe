@@ -21,13 +21,79 @@ const RequireAuth = ({ user, children }) => {
 };
 
 const Register = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({username: "", password: "", retype_password: "", first_name: "", last_name: "", location: "", description: "", occupation: ""});
+  const handleChange = (event) => {
+    const {name, value} = event.target;
+    setFormData((prevFormData) => ({...prevFormData, [name]: value}));
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await fetch('http://localhost:8081/admin/register', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(res => res.json());
+
+      if(response.status === 201) {
+        alert('Registration successful');
+        navigate('/login');
+        return;
+      }else{
+        alert('Registration failed: ' + response.message);
+      }
+      
+    }catch (error) {
+      console.error('Error during registration:', error);
+    }
+  }
+
+  return (
+    <div className="register-container">
+    <h1>Register</h1>
+    <form className="register-form" onSubmit={handleSubmit}>
+    <label>Username</label>
+    <input type="text" name="username" value={formData.username} onChange={handleChange} />
+
+    <label>Password</label>
+    <input type="password" name="password" value={formData.password} onChange={handleChange} />
+
+    <label>Retype Password</label>
+    <input type="password" name="retype_password" value={formData.retype_password} onChange={handleChange} />
+
+    <label>First name</label>
+    <input type="text" name="first_name" value={formData.first_name} onChange={handleChange} />
+
+    <label>Last name</label>
+    <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} />
+
+    <label>Location</label>
+    <input type="text" name="location" value={formData.location} onChange={handleChange} />
+
+    <label>Description</label>
+    <input type="text" name="description" value={formData.description} onChange={handleChange} />
+
+    <label>Occupation</label>
+    <input type="text" name="occupation" value={formData.occupation} onChange={handleChange} />
+
+    <button type="submit">Submit</button>
+    <br />
+    <Link to="/login">Already have an account? Login here.</Link>
+  </form>
+</div>
+
+  )
+};
   
-}
+
 
 const Stats = ({user, onLogout}) => {
-  
+  console.log('Stats user:', user);
   
   if(!user){
     return (<Navigate to="/login" />);
@@ -38,7 +104,7 @@ const Stats = ({user, onLogout}) => {
     <div>
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <TopBar onLogout={onLogout} />
+            <TopBar firstName={user.first_name} lastName={user.last_name} onLogout={onLogout} />
           </Grid>
         </Grid>
       </div>
@@ -88,12 +154,37 @@ const Login = ({onLogin})  => {
 
   
   return (
-    <div style={{ padding: 10 }}> <br/>
-    <span>Username:</span><br/>
-    <input type="text" onChange={(e) => setCreds({...creds, username: e.target.value})}/><br/>
-    <span>Password:</span><br/>
-    <input type="password" onChange={(e) => setCreds({...creds, password: e.target.value})}/><br/><br/>
-    <button onClick={handleLogin}>Login</button> </div>
+    <div className="login-container">
+    <h1>Login</h1>
+
+    <div className="login-form">
+      <label>Username</label>
+      <input
+        type="text"
+        placeholder="Enter username"
+        onChange={(e) =>
+          setCreds({ ...creds, username: e.target.value })
+        }
+      />
+
+      <label>Password</label>
+      <input
+        type="password"
+        placeholder="Enter password"
+        onChange={(e) =>
+          setCreds({ ...creds, password: e.target.value })
+        }
+      />
+
+      <button onClick={handleLogin}>Login</button>
+
+      <br />
+      <div>
+        <Link to="/register">Don't have an account? Register here.</Link>
+      </div>
+    </div>
+  </div>
+
   );
 }
 
