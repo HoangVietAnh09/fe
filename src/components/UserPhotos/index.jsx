@@ -24,28 +24,88 @@ function UserPhotos() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [comment, setComment] = useState({});
+  const [submitting, setSubmitting] = useState({});
 
   const handleCommentChange = (photoId, value) => {
     setComment({
       ...comment,
       [photoId]: value
-    })
-  }
+    });
+  };
 
-  const handleSubmitComment = (photoId) => {
+  const handleSubmitComment = async (photoId) => {
     const commentText = comment[photoId];
-    if(!commentText || commentText.trim() === "") {
+    if (!commentText || commentText.trim() === "") {
       alert("Comment cannot be empty");
       return;
     }
 
-    alert(`Submitting comment for photo ${photoId}: ${commentText}`);
+    const user = localStorage.getItem('user');
+    console.log("User from localStorage:", user);
+    console.log("Submitting comment for photo:", photoId);
 
-    setComment({
-      ...comment,
-      [photoId]: ""
-    });
-  }
+    try {
+      setSubmitting({ ...submitting, [photoId]: true });
+      
+      const response = await fetch(`http://localhost:8081/commentsOfPhoto/${photoId}`, {
+        method: 'POST',
+        body: JSON.stringify({ comment: commentText }),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      console.log("Submit comment response status:", response.status);
+      
+      if (response.status === 401) {
+        alert("You must be logged in to comment. Please log in first.");
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        return;
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to submit comment');
+      }
+
+      const result = await response.json();
+      console.log("Comment response data:", result);
+      
+      const normalizedComment = {
+      comment:
+        typeof result.comment?.comment === "string"
+          ? result.comment.comment
+          : "",
+      date: result.comment?.date || new Date(),
+      user_id: result.comment?.user_id,
+    };
+
+    setPhotos(prevPhotos =>
+      prevPhotos.map(photo =>
+        photo._id === photoId
+          ? {
+              ...photo,
+              comments: [...(photo.comments || []), normalizedComment],
+            }
+          : photo
+      )
+    );
+
+      setComment((prev) => ({
+        ...prev,
+        [photoId]: ""
+      }));
+
+      alert("Comment posted successfully!");
+    } catch (err) {
+      console.error("Error submitting comment:", err);
+      alert(`Failed to post comment: ${err.message}`);
+    } finally {
+      setSubmitting({ ...submitting, [photoId]: false });
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,19 +119,36 @@ function UserPhotos() {
         ]);
 
         setUser(userResponse.data);
-        setPhotos(photosResponse.data);
-        setLoading(false);
+        
+        const photosData = photosResponse.data;
+        console.log("Fetched photos:", photosData);
+        
+        if (Array.isArray(photosData)) {
+          const validatedPhotos = photosData.map(photo => {
+            console.log("Photo comments:", photo.comments);
+            return {
+              ...photo,
+              comments: Array.isArray(photo.comments) ? photo.comments : []
+            };
+          });
+          setPhotos(validatedPhotos);
+        } else {
+          console.error('Photos data is not an array:', photosData);
+          setPhotos([]);
+        }
       } catch (err) {
         console.error("Failed to fetch photos:", err);
         setError(err);
+      } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [userId]); 
+  }, [userId]);
 
   const formatDateTime = (dt) => {
+    if (!dt) return 'Unknown date';
     const date = new Date(dt);
     return date.toLocaleString('vi-VN', {
       year: 'numeric',
@@ -163,75 +240,84 @@ function UserPhotos() {
               />
             </Box>
             
-            {photo.comments && photo.comments.length > 0 ? (
+            {photo.comments && Array.isArray(photo.comments) && photo.comments.length > 0 ? (
               <Box sx={{ mt: 2 }}>
-                {photo.comments.map((comment, index) => (
-                  <Box 
-                    key={comment._id} 
-                    sx={{ 
-                      mb: 2, 
-                      p: 2,
-                      bgcolor: '#f5f5f5',
-                      borderRadius: 2,
-                      borderLeft: "4px solid #1976d2",
-                      transition: 'all 0.2s',
-                      '&:hover': {
-                        bgcolor: '#e3f2fd',
-                        transform: 'translateX(4px)'
-                      }
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                      <Typography variant="caption" color="text.secondary">
-                        Comment #{index + 1} | ID: {comment._id.slice(-6)}
-                      </Typography>
-                    </Box>
-                    
-                    <Typography variant="body2" sx={{ mb: 1 }}>
-                      <MuiLink
-                        component={Link}
-                        to={`/users/${comment.user_id}`}
-                        underline="hover"
-                        sx={{ 
-                          fontWeight: 'bold',
-                          color: '#1976d2',
-                          '&:hover': { color: '#1565c0' }
-                        }}
-                      >
-                        {comment.user ? 
-                          `${comment.user.first_name} ${comment.user.last_name}` : 
-                          'Unknown User'
-                        }
-                      </MuiLink>
-                      {" • "}
-                      <span style={{ color: "gray", fontSize: '0.875rem' }}>
-                        {formatDateTime(comment.date_time)}
-                      </span>
-                    </Typography>
-                    
-                    <Typography 
-                      variant="body1" 
+                {photo.comments.map((comment, index) => {
+                  if (!comment || typeof comment !== 'object') {
+                    console.warn('Invalid comment:', comment);
+                    return null;
+                  }
+                  
+                  return (
+                    <Box 
+                      key={comment._id || `comment-${index}`} 
                       sx={{ 
-                        mt: 1,
-                        pl: 1,
-                        fontStyle: 'italic',
-                        color: '#333'
+                        mb: 2, 
+                        p: 2,
+                        bgcolor: '#f5f5f5',
+                        borderRadius: 2,
+                        borderLeft: "4px solid #1976d2",
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          bgcolor: '#e3f2fd',
+                          transform: 'translateX(4px)'
+                        }
                       }}
                     >
-                      "{comment.comment}"
-                    </Typography>
-                    
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                      Commenter ID: {comment.user_id}
-                    </Typography>
-                  </Box>
-                ))}
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                        <Typography variant="caption" color="text.secondary">
+                          Comment #{index + 1}
+                        </Typography>
+                      </Box>
+                      
+                      <Typography variant="body2" sx={{ mb: 1 }}>
+                        <MuiLink
+                          component={Link}
+                          to={`/users/${comment.user_id}`}
+                          underline="hover"
+                          sx={{ 
+                            fontWeight: 'bold',
+                            color: '#1976d2',
+                            '&:hover': { color: '#1565c0' }
+                          }}
+                        >
+                          {comment.user ? 
+                            `${comment.user.first_name} ${comment.user.last_name}` : 
+                            'Unknown User'
+                          }
+                        </MuiLink>
+                        {" • "}
+                        <span style={{ color: "gray", fontSize: '0.875rem' }}>
+                          {comment.date_time ? formatDateTime(comment.date_time) : 
+                           comment.date ? formatDateTime(comment.date) : 'Unknown date'}
+                        </span>
+                      </Typography>
+                      
+                      <Typography 
+                        variant="body1" 
+                        sx={{ 
+                          mt: 1,
+                          pl: 1,
+                          fontStyle: 'italic',
+                          color: '#333'
+                        }}
+                      >
+                        "{comment.comment}"
+                      </Typography>
+                      
+                      <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                        Commenter ID: {comment.user_id}
+                      </Typography>
+                    </Box>
+                  );
+                })}
               </Box>
             ) : (
               <Alert severity="info" sx={{ mt: 2 }}>
                 No comments yet. Be the first to comment!
               </Alert>
             )}
+            
             <Divider sx={{ my: 2 }} />
 
             <Typography variant="subtitle1" fontWeight="bold">
@@ -247,13 +333,15 @@ function UserPhotos() {
                 onChange={(e) =>
                   handleCommentChange(photo._id, e.target.value)
                 }
+                disabled={submitting[photo._id]}
               />
 
               <Button
                 variant="contained"
                 onClick={() => handleSubmitComment(photo._id)}
+                disabled={submitting[photo._id]}
               >
-                Post
+                {submitting[photo._id] ? "Posting..." : "Post"}
               </Button>
             </Box>
           </CardContent>

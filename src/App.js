@@ -12,7 +12,17 @@ import UserPhotos from "./components/UserPhotos";
 import { Link } from 'react-router-dom';
 import useEffect from 'react';
 
+
+const RequireAuth = ({ user, children }) => {
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
 const Register = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   
 }
 
@@ -30,23 +40,6 @@ const Stats = ({user, onLogout}) => {
           <Grid item xs={12}>
             <TopBar onLogout={onLogout} />
           </Grid>
-          
-          {/* <div className="main-topbar-buffer" />
-          <Grid item sm={3}>
-            <Paper className="main-grid-item">
-              <UserList />
-            </Paper>
-          </Grid>
-         
-          <Grid item sm={9}>
-            <Paper className="main-grid-item">
-              <Routes>
-                <Route path="/users/:userId" element={<UserDetail />} />
-                <Route path="/photos/:userId" element={<UserPhotos />} />
-                <Route path="/users" element={<UserList />} />
-              </Routes>
-            </Paper>
-          </Grid>  */}
         </Grid>
       </div>
       
@@ -63,9 +56,11 @@ const Login = ({onLogin})  => {
       body: JSON.stringify({username: creds.username, password: creds.password}),
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      credentials: 'include'
     })
     .then(res => res.json());
+    localStorage.setItem('user', JSON.stringify(response.user));
     // const response = await fetchModel('/admin/login', {
     //   method: 'POST',
     //   body: JSON.stringify({username: creds.username, password: creds.password}),
@@ -75,7 +70,7 @@ const Login = ({onLogin})  => {
     // })
 
     if(response.status === 200) {
-      onLogin && onLogin({username: creds.username});
+      onLogin && onLogin(response.user);
       alert('Login successful');
       navigate(`/users/${response.user.id}`);
     }else{
@@ -102,11 +97,16 @@ const Login = ({onLogin})  => {
   );
 }
 
-const AppLayout = (onLogout) => {
-  const [user, setUser] = useState();
+
+const AppLayout = () => {
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const navigate = useNavigate();
   function logout() {
     setUser(null);
+    localStorage.removeItem("user");
     navigate('/login');
   }
   return (
@@ -115,6 +115,7 @@ const AppLayout = (onLogout) => {
       <Route path="/user-detail" element={<Stats user={user} onLogout={logout}/>} />
       <Route path="/register" element={<Register />} />
       <Route path="/*" element={
+        <RequireAuth user={user}>
         <div>
         <Grid container spacing={2}>
           <Grid item xs={12}>
@@ -137,6 +138,7 @@ const AppLayout = (onLogout) => {
           </Grid>
         </Grid>
       </div>
+      </RequireAuth>
       } />
     </Routes>
   );
