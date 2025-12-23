@@ -4,12 +4,14 @@ import { useParams, Link } from "react-router-dom";
 import fetchModel from "../../lib/fetchModelData";
 import UserUpdate from "./update.jsx";
 import "./styles.css";
+import { Navigate, useNavigate } from "react-router-dom";
 
 function UserDetail() {
   const { userId } = useParams();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleChange = (event) => {
     const {name, value} = event.target;
@@ -23,18 +25,24 @@ function UserDetail() {
   }
 
   const handleDelete = async () => {
-    const response = await fetch(`http://localhost:8081/api/user/${userId}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    })
-    .then(res => res.json());
+    try {
+      const response = await fetch(`http://localhost:8081/api/user/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(res => res.json());
 
-    if(response.status === 200){
-      alert('User deleted successfully');
-      window.location.href = '/';
+      if(response.status === 200){
+        alert('User deleted successfully');
+        // window.location.href = '/';
+        navigate("/")
+      }
+    }catch(error){
+      alert(error)
     }
+    
   }
 
   useEffect(() => {
@@ -120,7 +128,7 @@ function UserDetail() {
           View Photos of {user.first_name}
         </Typography>
         <br />
-        {/* <Button type="submit" onClick={handleDelete}>Delete User</Button> */}
+        <Button type="submit" onClick={handleDelete}>Delete User</Button>
         <br />
         <Typography
           variant="body1"
@@ -149,7 +157,7 @@ function UserDetail() {
           </form>
         </div> */}
 
-        {/* <UserUpdate /> */}
+        <UserUpdate />
       </CardContent>
     </Card>
   );
