@@ -120,7 +120,7 @@ function UserDetail() {
           View Photos of {user.first_name}
         </Typography>
         <br />
-        <Button type="submit" onClick={handleDelete}>Delete User</Button>
+        {/* <Button type="submit" onClick={handleDelete}>Delete User</Button> */}
         <br />
         <Typography
           variant="body1"
@@ -149,7 +149,7 @@ function UserDetail() {
           </form>
         </div> */}
 
-        <UserUpdate />
+        {/* <UserUpdate /> */}
       </CardContent>
     </Card>
   );

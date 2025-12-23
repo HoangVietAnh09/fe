@@ -11,7 +11,7 @@ import UserList from "./components/UserList";
 import UserPhotos from "./components/UserPhotos";
 import { Link } from 'react-router-dom';
 import useEffect from 'react';
-
+import Search from './components/Search';
 
 const RequireAuth = ({ user, children }) => {
   if (!user) {
@@ -230,7 +230,19 @@ const AppLayout = () => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
   const navigate = useNavigate();
-  function logout() {
+  async function logout() {
+    try {
+      const response = await fetch(`http://localhost:8081/api/user/logout`, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        credentials: 'include'
+      }).then(res => res.json())
+    }catch (err){
+      console.log(err);
+    }
+
     setUser(null);
     localStorage.removeItem("user");
     navigate('/login');
@@ -238,8 +250,13 @@ const AppLayout = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login onLogin={setUser}/>} />
-      <Route path="/search" element={<Stats user={user} onLogout={logout}/>} />
       <Route path="/register" element={<Register />} />
+      <Route path="/search" element={
+        <RequireAuth user={user}>
+          <Search />
+        </RequireAuth>
+      }/>
+
       <Route path="upload" element={
         <RequireAuth user={user}>
           <Upload />

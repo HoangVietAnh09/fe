@@ -226,7 +226,7 @@ function UserPhotos() {
               />
             </Box>
           </CardContent>
-          <Button type="submit" onClick={() => handleDelete(photo._id)}>Delete Image</Button>
+          {/* <Button type="submit" onClick={() => handleDelete(photo._id)}>Delete Image</Button> */}
           <CardMedia
             component="img"
             image={`/images/${photo.file_name}`}
@@ -325,7 +325,8 @@ function UserPhotos() {
                       >
                         "{comment.comment}"
                       </Typography>
-                      <Button style={{ float: "left" }} onClick={() => handleDeleteComment(photo._id, comment._id)}>Delete Comment</Button>
+                      {/* <Button style={{ float: "left" }} onClick={() => handleDeleteComment(photo._id, comment._id)}>Delete Comment</Button> */}
+                      {/* <Button style={{ float: "left" }}>Fix Comment</Button> */}
                       <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
                         Commenter ID: {comment.user_id}
                       </Typography>
