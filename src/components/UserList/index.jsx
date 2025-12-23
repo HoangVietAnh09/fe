@@ -22,6 +22,7 @@ function UserList() {
       try {
         const response = await fetchModel('/api/user/list');
         setUsers(response.data);
+        console.log(response.data);
         setLoading(false);
       } catch (err) {
         console.error("Failed to fetch users:", err);
@@ -52,7 +53,7 @@ function UserList() {
   return (
     <div>
       <Typography variant="body1">
-        This is list user edited by Hoang Viet Anh - B22DCAT012
+        There are {users.length} users in the system.
       </Typography>
       <List component="nav">
         {users.map((item) => (
@@ -60,7 +61,6 @@ function UserList() {
             <ListItem 
               component={Link} 
               to={`/users/${item._id}`}
-              button
             >
               <ListItemText primary={`${item.first_name} ${item.last_name}`} /> 
               {/* <Button type="submit">Delete</Button> */}

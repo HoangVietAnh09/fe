@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Typography, Card, CardContent, CircularProgress, Alert } from "@mui/material";
+import { Typography, Card, CardContent, CircularProgress, Alert, Button } from "@mui/material";
 import { useParams, Link } from "react-router-dom";
 import fetchModel from "../../lib/fetchModelData";
+import UserUpdate from "./update.jsx";
 import "./styles.css";
 
 function UserDetail() {
@@ -9,6 +10,32 @@ function UserDetail() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const handleChange = (event) => {
+    const {name, value} = event.target;
+    setUser((prev) => ({...prev, [name]: value}))
+
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+  }
+
+  const handleDelete = async () => {
+    const response = await fetch(`http://localhost:8081/api/user/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    .then(res => res.json());
+
+    if(response.status === 200){
+      alert('User deleted successfully');
+      window.location.href = '/';
+    }
+  }
 
   useEffect(() => {
     const fetchUserDetail = async () => {
@@ -92,6 +119,37 @@ function UserDetail() {
         >
           View Photos of {user.first_name}
         </Typography>
+        <br />
+        <Button type="submit" onClick={handleDelete}>Delete User</Button>
+        <br />
+        <Typography
+          variant="body1"
+          sx={{ mt: 2 }}
+          component={Link}
+          to={`/upload`}
+          style={{
+            display: "inline-block",
+            color: "#1976d2",
+            textDecoration: "none",
+            fontWeight: "bold",
+          }}
+        >
+          Upload
+        </Typography>
+
+        {/* <div>
+          <h1>Update data</h1>
+          <form action="" onSubmit={handleSubmit}>
+            <input type="text" name="first_name" value={user.first_name} onChange={handleChange} />
+            <input type="text" name="last_name" value={user.last_name} onChange={handleChange} />
+            <input type="text" name="location" value={user.location} onChange={handleChange} />
+            <input type="text" name="occupation" value={user.occupation} onChange={handleChange} />
+            <textarea name="description" value={user.description} onChange={handleChange}></textarea>
+            <button type="submit">Update User</button>
+          </form>
+        </div> */}
+
+        <UserUpdate />
       </CardContent>
     </Card>
   );

@@ -20,6 +20,52 @@ const RequireAuth = ({ user, children }) => {
   return children;
 };
 
+
+const Upload = () => {
+  const [form, setForm] = useState({});
+  const navigate = useNavigate();
+
+  const handleChange = (event) => {
+    const {name, files} = event.target;
+    setForm((prevForm) => ({...prevForm, [name]: files[0]}));
+  }
+  const handleUpload = async (event) => {
+    event.preventDefault();
+    try {
+      const formData = new FormData();
+      formData.append('photo', form.photo);
+
+      const response = await fetch('http://localhost:8081/api/upload/photos/new', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      })
+      .then(res => res.json());
+
+      if(response.status === 200) {
+        alert('File uploaded successfully');
+        navigate("/")
+        return;
+      }else{
+        alert('File upload failed: ' + response.message);
+      }
+    } catch (error) {
+      console.error('Error during file upload:', error);
+    }
+  }
+
+  return (
+    <div>
+      <h2>Upload Page</h2>
+      <form onSubmit={handleUpload}>
+          <input type="file" name="photo" accept="image/*" required onChange={handleChange}/>
+          <button type="submit">Upload</button>
+      </form>
+    </div>
+  )
+}
+
+
 const Register = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({username: "", password: "", retype_password: "", first_name: "", last_name: "", location: "", description: "", occupation: ""});
@@ -104,7 +150,7 @@ const Stats = ({user, onLogout}) => {
     <div>
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <TopBar firstName={user.first_name} lastName={user.last_name} onLogout={onLogout} />
+            <TopBar onLogout={onLogout} />
           </Grid>
         </Grid>
       </div>
@@ -127,14 +173,7 @@ const Login = ({onLogin})  => {
     })
     .then(res => res.json());
     localStorage.setItem('user', JSON.stringify(response.user));
-    // const response = await fetchModel('/admin/login', {
-    //   method: 'POST',
-    //   body: JSON.stringify({username: creds.username, password: creds.password}),
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   }
-    // })
-
+    
     if(response.status === 200) {
       onLogin && onLogin(response.user);
       alert('Login successful');
@@ -145,11 +184,7 @@ const Login = ({onLogin})  => {
     console.log('response', response);
 
 
-  // if(creds.username === 'admin' && creds.password === '123') {
-  //   onLogin && onLogin({username: creds.username});
-  //     alert('Login successful');
-  //     navigate('/stats');
-  //   }
+ 
   }
 
   
@@ -203,8 +238,13 @@ const AppLayout = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login onLogin={setUser}/>} />
-      <Route path="/user-detail" element={<Stats user={user} onLogout={logout}/>} />
+      <Route path="/search" element={<Stats user={user} onLogout={logout}/>} />
       <Route path="/register" element={<Register />} />
+      <Route path="upload" element={
+        <RequireAuth user={user}>
+          <Upload />
+        </RequireAuth>
+        }/>
       <Route path="/*" element={
         <RequireAuth user={user}>
         <div>

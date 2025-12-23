@@ -25,6 +25,53 @@ function UserPhotos() {
   const [error, setError] = useState(null);
   const [comment, setComment] = useState({});
   const [submitting, setSubmitting] = useState({});
+  const [trigger, setTrigger] = useState(0);
+
+  const handleDeleteComment = async (photoId, commentId) => {
+    console.log("Deleting comment:", commentId, "from photo:", photoId);
+    try {
+      const response = await fetch(`http://localhost:8081/commentsOfPhoto/${photoId}/${commentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      }).then(res => res.json());
+
+      console.log("Delete comment response data:", response);
+      if(response.status === 200){
+        alert('Comment deleted successfully');
+        setTrigger((prev) => (prev + 1));
+      } else {
+        alert('Failed to delete comment: ' + (response.message || 'Unknown error'));
+      }
+    }catch (err) {
+      console.error("Error deleting comment:", err);
+      alert(`Failed to delete comment: ${err.message}`);
+    }
+  }
+
+  const handleDelete = async (photoId) => {
+    try {
+      const response = await fetch(`http://localhost:8081/api/photo/${photoId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).then(res => res.json());
+
+      console.log("Delete photo response data:", response);
+      if(response.status === 200){
+        alert('Photo deleted successfully');
+        setPhotos(prevPhotos => prevPhotos.filter(photo => photo._id !== photoId));
+      } else {
+        alert('Failed to delete photo: ' + (response.message || 'Unknown error'));
+      }
+    } catch (err) {
+      console.error("Error deleting photo:", err);
+      alert(`Failed to delete photo: ${err.message}`);
+    }
+  }
 
   const handleCommentChange = (photoId, value) => {
     setComment({
@@ -40,9 +87,9 @@ function UserPhotos() {
       return;
     }
 
-    const user = localStorage.getItem('user');
-    console.log("User from localStorage:", user);
-    console.log("Submitting comment for photo:", photoId);
+    // const user = localStorage.getItem('user');
+    // console.log("User from localStorage:", user);
+    // console.log("Submitting comment for photo:", photoId);
 
     try {
       setSubmitting({ ...submitting, [photoId]: true });
@@ -56,47 +103,18 @@ function UserPhotos() {
         credentials: 'include'
       });
 
-      console.log("Submit comment response status:", response.status);
-      
-      if (response.status === 401) {
-        alert("You must be logged in to comment. Please log in first.");
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-        return;
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to submit comment');
-      }
+      // console.log("Submit comment response status:", response.status);
 
       const result = await response.json();
       console.log("Comment response data:", result);
-      
-      const normalizedComment = {
-      comment:
-        typeof result.comment?.comment === "string"
-          ? result.comment.comment
-          : "",
-      date: result.comment?.date || new Date(),
-      user_id: result.comment?.user_id,
-    };
-
-    setPhotos(prevPhotos =>
-      prevPhotos.map(photo =>
-        photo._id === photoId
-          ? {
-              ...photo,
-              comments: [...(photo.comments || []), normalizedComment],
-            }
-          : photo
-      )
-    );
+    
 
       setComment((prev) => ({
         ...prev,
         [photoId]: ""
       }));
+
+      setTrigger((prev) => (prev + 1));
 
       alert("Comment posted successfully!");
     } catch (err) {
@@ -145,7 +163,7 @@ function UserPhotos() {
     };
 
     fetchData();
-  }, [userId]);
+  }, [userId, trigger]);
 
   const formatDateTime = (dt) => {
     if (!dt) return 'Unknown date';
@@ -189,6 +207,9 @@ function UserPhotos() {
       <Typography variant="h5" gutterBottom>
         Photos of {user ? `${user.first_name} ${user.last_name}` : 'User'}
       </Typography>
+      <Typography variant="h5" gutterBottom>
+        {user.first_name} {user.last_name} has {photos.length} photos.
+      </Typography>
       
       {photos.map((photo) => (
         <Card key={photo._id} sx={{ mb: 3, boxShadow: 3 }}>
@@ -205,7 +226,7 @@ function UserPhotos() {
               />
             </Box>
           </CardContent>
-          
+          <Button type="submit" onClick={() => handleDelete(photo._id)}>Delete Image</Button>
           <CardMedia
             component="img"
             image={`/images/${photo.file_name}`}
@@ -304,7 +325,7 @@ function UserPhotos() {
                       >
                         "{comment.comment}"
                       </Typography>
-                      
+                      <Button style={{ float: "left" }} onClick={() => handleDeleteComment(photo._id, comment._id)}>Delete Comment</Button>
                       <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
                         Commenter ID: {comment.user_id}
                       </Typography>
@@ -335,7 +356,6 @@ function UserPhotos() {
                 }
                 disabled={submitting[photo._id]}
               />
-
               <Button
                 variant="contained"
                 onClick={() => handleSubmitComment(photo._id)}

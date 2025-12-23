@@ -1,5 +1,5 @@
 import React from "react";
-import { AppBar, Toolbar, Typography } from "@mui/material";
+import { AppBar, Button, Toolbar, Typography } from "@mui/material";
 
 import "./styles.css";
 
@@ -17,9 +17,9 @@ function TopBar({onLogout}) {
           Hello {firstName} {lastName}!
         </Typography>
         <div style={{ flexGrow: 1 }} />
-        <button color="inherit" onClick={onLogout} float="left">
+        <Button color="inherit" onClick={onLogout} float="left">
           Logout
-        </button>
+        </Button>
       </Toolbar>
     </AppBar>
   );
