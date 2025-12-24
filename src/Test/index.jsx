@@ -3,6 +3,105 @@ import { useState, useEffect } from "react";
 
 function Test(){
 
+    // const [user, setUser] = useState(null);
+    // const [form, setForm] = useState({first_name: ""})
+
+    // const handleChange = (e) => {
+    //     const {name, value} = e.target;
+    //     setForm((prev) => ({...prev, [name]: value}))
+    // }
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     try {
+    //         const response = await fetch(`http://localhost:8081/api/user/getbyname/${form.first_name}`).then(res => res.json())
+    //         setUser(response.user)
+    //         alert('OK')
+    //         console.log(user)
+    //     }catch(err){
+    //         alert(err)
+    //     }
+    // }
+
+    // return (
+    //     <div>
+    //         <form action="" onSubmit={handleSubmit}>
+    //             <input type="text" name="first_name" value={form.first_name} onChange={handleChange}/>
+    //             <button type="submit">Submit</button>
+    //         </form>
+    //         {user && (
+    //             <div>
+    //                 <h2>{user._id}</h2>
+    //                 <h2>{user.first_name}</h2>     
+    //                 <h2>{user.last_name}</h2>
+    //                 <h2>{user.username}</h2>
+    //             </div>
+                
+
+    //         )}
+    //     </div>
+    // )
+
+
+
+    //---------------------------------
+    //Find comment
+
+    // const [form, setForm] = useState({photoId: "", commentId: ""})
+    // const [comment, setComment] = useState(null)
+
+    // const handleChange = (event) => {
+    //     const {name, value} = event.target;
+    //     setForm((prev) => ({...prev, [name]: value}))
+    // }
+
+    // const handleSubmit = async (event) => {
+    //     event.preventDefault();
+    //     try {
+    //         const response = await fetch(`http://localhost:8081/commentsOfPhoto/${form.photoId}/${form.commentId}`).then(res => res.json())
+    //         setComment(response.comment)
+
+    //     }catch(err) {
+    //         alert(err)
+    //     }
+    // }
+
+    // return (
+    //     <div>
+    //         <form action="" onSubmit={handleSubmit}>
+    //             <input type="text" name="photoId" value={form.photoId} onChange={handleChange}/>
+    //             <input type="text" name="commentId" value={form.commentId} onChange={handleChange}/>
+    //             <button type="submit">Submit</button>
+    //         </form>
+    //           {comment && (
+    //             <div>
+    //                 <h4>Comment</h4>
+    //                 <p>{comment.comment}</p>
+    //             </div>
+    //             )}
+    //     </div>
+    // )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     //-------------------------------------------------------------
     // Update comment

@@ -25,9 +25,31 @@ function UserPhotos() {
   const [error, setError] = useState(null);
   const [comment, setComment] = useState({});
   const [submitting, setSubmitting] = useState({});
+  const [liked, setLiked] = useState(false)
+  const [likeCount, setLikeCount] = useState(0)
   const [trigger, setTrigger] = useState(0);
 
+  // const handleLike = async (photoId) => {
+  //   const user = localStorage.getItem('user');
+  //   console.log(user)
+  //   try {
+  //     const res = await fetch(`http://localhost:8081/api/photo/${photoId}/like`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify({"userId": user.id})
+  //     }).then(res => res.json())
+  //     setLiked(res.liked)
+  //     setLikeCount(res.likeCount)
+  //     alert('OK')
+  //   }catch(err){
+  //     alert('Fail')
+  //   }
+  // }
+
   const handleDeleteComment = async (photoId, commentId) => {
+    
     try {
       const response = await fetch(`http://localhost:8081/commentsOfPhoto/${photoId}/${commentId}`, {
         method: 'DELETE',
@@ -87,7 +109,6 @@ function UserPhotos() {
       return;
     }
 
-    // const user = localStorage.getItem('user');
     // console.log("User from localStorage:", user);
     // console.log("Submitting comment for photo:", photoId);
 
@@ -248,6 +269,8 @@ function UserPhotos() {
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
               User ID: {photo.user_id}
             </Typography>
+            {/* <Button type="submit" onClick={() => handleLike(photo._id)}>Like</Button> 
+            <h2>There are {likeCount} like</h2> */}
             
             <Divider sx={{ my: 2 }} />
             
