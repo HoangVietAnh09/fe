@@ -12,7 +12,7 @@ import UserPhotos from "./components/UserPhotos";
 import { Link } from 'react-router-dom';
 import useEffect from 'react';
 import Search from './components/Search';
-
+import Test from './Test'
 const RequireAuth = ({ user, children }) => {
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -138,26 +138,6 @@ const Register = () => {
   
 
 
-const Stats = ({user, onLogout}) => {
-  console.log('Stats user:', user);
-  
-  if(!user){
-    return (<Navigate to="/login" />);
-  }
-  
-
-  return (
-    <div>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <TopBar onLogout={onLogout} />
-          </Grid>
-        </Grid>
-      </div>
-      
-  )
-}
-
 const Login = ({onLogin})  => {
   const [creds, setCreds] = useState({});
   
@@ -182,9 +162,6 @@ const Login = ({onLogin})  => {
       alert('Login failed: ' + response.message);
     }
     console.log('response', response);
-
-
- 
   }
 
   
@@ -224,6 +201,8 @@ const Login = ({onLogin})  => {
 }
 
 
+
+
 const AppLayout = () => {
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
@@ -249,6 +228,7 @@ const AppLayout = () => {
   }
   return (
     <Routes>
+      <Route path="/test" element={<Test />}/>
       <Route path="/login" element={<Login onLogin={setUser}/>} />
       <Route path="/register" element={<Register />} />
       <Route path="/search" element={

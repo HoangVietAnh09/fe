@@ -12,6 +12,7 @@ function UserDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  // const [trigger, setTrigger] = useState(0);
 
   const handleChange = (event) => {
     const {name, value} = event.target;
@@ -128,7 +129,7 @@ function UserDetail() {
           View Photos of {user.first_name}
         </Typography>
         <br />
-        <Button type="submit" onClick={handleDelete}>Delete User</Button>
+        {/* <Button type="submit" onClick={handleDelete}>Delete User</Button> */}
         <br />
         <Typography
           variant="body1"
@@ -157,7 +158,7 @@ function UserDetail() {
           </form>
         </div> */}
 
-        <UserUpdate />
+        {/* <UserUpdate /> */}
       </CardContent>
     </Card>
   );

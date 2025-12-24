@@ -4,8 +4,10 @@ import { useParams } from "react-router-dom";
 
 function UserUpdate(){
     const id = useParams().userId;
+    console.log(useParams());
     console.log("User ID in Update Component:", id);
     const [formData, setFormData] = useState({first_name: '', last_name: '', location: '', occupation: '', description: ''});
+
     const handleChange = (event) => {
         const {name, value} = event.target;
         setFormData((prev) => ({...prev, [name]: value}))

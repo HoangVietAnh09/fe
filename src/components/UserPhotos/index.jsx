@@ -28,7 +28,6 @@ function UserPhotos() {
   const [trigger, setTrigger] = useState(0);
 
   const handleDeleteComment = async (photoId, commentId) => {
-    console.log("Deleting comment:", commentId, "from photo:", photoId);
     try {
       const response = await fetch(`http://localhost:8081/commentsOfPhoto/${photoId}/${commentId}`, {
         method: 'DELETE',
@@ -38,9 +37,10 @@ function UserPhotos() {
         credentials: 'include'
       }).then(res => res.json());
 
-      console.log("Delete comment response data:", response);
+      // console.log("Delete comment response data:", response);
       if(response.status === 200){
         alert('Comment deleted successfully');
+        // window.location.reload();
         setTrigger((prev) => (prev + 1));
       } else {
         alert('Failed to delete comment: ' + (response.message || 'Unknown error'));
@@ -150,6 +150,7 @@ function UserPhotos() {
             };
           });
           setPhotos(validatedPhotos);
+          console.log(validatedPhotos)
         } else {
           console.error('Photos data is not an array:', photosData);
           setPhotos([]);
@@ -226,7 +227,7 @@ function UserPhotos() {
               />
             </Box>
           </CardContent>
-          <Button type="submit" onClick={() => handleDelete(photo._id)}>Delete Image</Button>
+          {/* <Button type="submit" onClick={() => handleDelete(photo._id)}>Delete Image</Button> */}
           <CardMedia
             component="img"
             image={`/images/${photo.file_name}`}
@@ -302,10 +303,7 @@ function UserPhotos() {
                             '&:hover': { color: '#1565c0' }
                           }}
                         >
-                          {comment.user ? 
-                            `${comment.user.first_name} ${comment.user.last_name}` : 
-                            'Unknown User'
-                          }
+                          Anonymous User
                         </MuiLink>
                         {" • "}
                         <span style={{ color: "gray", fontSize: '0.875rem' }}>
@@ -325,7 +323,7 @@ function UserPhotos() {
                       >
                         "{comment.comment}"
                       </Typography>
-                      <Button style={{ float: "left" }} onClick={() => handleDeleteComment(photo._id, comment._id)}>Delete Comment</Button>
+                      {/* <Button style={{ float: "left" }} onClick={() => handleDeleteComment(photo._id, comment._id)}>Delete Comment</Button> */}
                       {/* <Button style={{ float: "left" }}>Fix Comment</Button> */}
                       <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
                         Commenter ID: {comment.user_id}
