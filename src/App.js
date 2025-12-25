@@ -231,6 +231,11 @@ const AppLayout = () => {
       <Route path="/test" element={<Test />}/>
       <Route path="/login" element={<Login onLogin={setUser}/>} />
       <Route path="/register" element={<Register />} />
+      {/* <Route path="/listfriend" element={
+        <RequireAuth user={user}>
+          <ListFriend />
+        </RequireAuth>
+      } /> */}
       <Route path="/search" element={
         <RequireAuth user={user}>
           <Search />

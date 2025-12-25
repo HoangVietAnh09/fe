@@ -41,7 +41,7 @@ function UserPhotos() {
   //       body: JSON.stringify({"userId": user.id})
   //     }).then(res => res.json())
   //     setLiked(res.liked)
-  //     setLikeCount(res.likeCount)
+  //     setTrigger((prev) => (prev + 1))
   //     alert('OK')
   //   }catch(err){
   //     alert('Fail')
@@ -270,7 +270,7 @@ function UserPhotos() {
               User ID: {photo.user_id}
             </Typography>
             {/* <Button type="submit" onClick={() => handleLike(photo._id)}>Like</Button> 
-            <h2>There are {likeCount} like</h2> */}
+            <h2>There are {photo.likes.length} like</h2> */}
             
             <Divider sx={{ my: 2 }} />
             

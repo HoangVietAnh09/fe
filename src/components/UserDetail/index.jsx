@@ -3,6 +3,7 @@ import { Typography, Card, CardContent, CircularProgress, Alert, Button } from "
 import { useParams, Link } from "react-router-dom";
 import fetchModel from "../../lib/fetchModelData";
 import UserUpdate from "./update.jsx";
+// import ListFriend from "./ListFriend.jsx"
 import "./styles.css";
 import { Navigate, useNavigate } from "react-router-dom";
 
